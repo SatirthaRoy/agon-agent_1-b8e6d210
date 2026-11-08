@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   html {
     scroll-behavior: smooth;
+    color-scheme: light;
   }
 }
 
@@ -32,13 +35,6 @@ html, body {
 .admin-dashboard :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), textarea, select) {
   color: #881337;
   caret-color: #e11d48;
-}
-
-@media (prefers-color-scheme: dark) {
-  .admin-dashboard :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), textarea, select) {
-    color: #ffe4e6;
-    caret-color: #fb7185;
-  }
 }
 
 /* Perspective utilities for 3D flip card */

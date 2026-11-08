@@ -15,6 +15,8 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
   const [floatingTexts, setFloatingTexts] = useState<{ id: number; text: string; x: number; y: number }[]>([]);
 
   const isDraggingRef = useRef(false);
+  const hasDraggedRef = useRef(false);
+  const pointerStartedOnHeartRef = useRef(false);
   const previousMousePosition = useRef({ x: 0, y: 0 });
   const heartMeshRef = useRef<THREE.Mesh | null>(null);
 
@@ -112,16 +114,6 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
     scene.add(heartMesh);
     heartMeshRef.current = heartMesh;
 
-    // Stitching outline detail (Golden/Warm thread aesthetic)
-    const wireframeGeo = new THREE.WireframeGeometry(geometry);
-    const wireframeMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color('#ffffff'),
-      transparent: true,
-      opacity: 0.12,
-    });
-    const stitches = new THREE.LineSegments(wireframeGeo, wireframeMat);
-    heartMesh.add(stitches);
-
     // Particle Stars / Sparkles
     const particleCount = 60;
     const particlesGeo = new THREE.BufferGeometry();
@@ -176,21 +168,56 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
     warmPointLight.position.set(3, -2, 3);
     scene.add(warmPointLight);
 
-    // Mouse Interaction
+    // Pointer drag interaction
     let targetRotationX = Math.PI;
     let targetRotationY = 0;
     let bounceScale = 2.2;
+    const raycaster = new THREE.Raycaster();
+    const pointerPosition = new THREE.Vector2();
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerDown = (e: PointerEvent) => {
       const rect = container.getBoundingClientRect();
-      const mouseX = (e.clientX - rect.left) / rect.width - 0.5;
-      const mouseY = (e.clientY - rect.top) / rect.height - 0.5;
+      pointerPosition.set(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1,
+      );
+      raycaster.setFromCamera(pointerPosition, camera);
+      pointerStartedOnHeartRef.current = raycaster.intersectObject(heartMesh, false).length > 0;
+      if (!pointerStartedOnHeartRef.current) return;
 
-      targetRotationY = mouseX * 1.2;
-      targetRotationX = Math.PI - mouseY * 0.8;
+      isDraggingRef.current = true;
+      hasDraggedRef.current = false;
+      previousMousePosition.current = { x: e.clientX, y: e.clientY };
+      container.setPointerCapture(e.pointerId);
     };
 
-    container.addEventListener('mousemove', handleMouseMove);
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!isDraggingRef.current) return;
+
+      const deltaX = e.clientX - previousMousePosition.current.x;
+      const deltaY = e.clientY - previousMousePosition.current.y;
+      previousMousePosition.current = { x: e.clientX, y: e.clientY };
+
+      if (Math.abs(deltaX) + Math.abs(deltaY) > 3) hasDraggedRef.current = true;
+      if (!hasDraggedRef.current) return;
+      targetRotationY -= deltaX * 0.01;
+      targetRotationX = THREE.MathUtils.clamp(targetRotationX + deltaY * 0.01, 0.2, Math.PI * 2 - 0.2);
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      isDraggingRef.current = false;
+      if (container.hasPointerCapture(e.pointerId)) container.releasePointerCapture(e.pointerId);
+    };
+
+    const handlePointerCancel = () => {
+      isDraggingRef.current = false;
+      pointerStartedOnHeartRef.current = false;
+    };
+
+    container.addEventListener('pointerdown', handlePointerDown);
+    container.addEventListener('pointermove', handlePointerMove);
+    container.addEventListener('pointerup', handlePointerUp);
+    container.addEventListener('pointercancel', handlePointerCancel);
 
     // Resize Handler
     const handleResize = () => {
@@ -206,7 +233,7 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
 
     // Animation Loop
     let animationFrameId: number;
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
 
     const animate = () => {
       const elapsedTime = clock.getElapsedTime();
@@ -220,8 +247,7 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
         heartMesh.rotation.y += (targetRotationY - heartMesh.rotation.y) * 0.08;
         heartMesh.rotation.x += (targetRotationX - heartMesh.rotation.x) * 0.08;
 
-        // Idle slow spin when idle
-        targetRotationY += 0.003;
+        if (!isDraggingRef.current) targetRotationY += 0.003;
 
         // Smooth scale recovery after squish
         bounceScale += (2.2 - bounceScale) * 0.1;
@@ -242,7 +268,10 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
 
     return () => {
       cancelAnimationFrame(animationFrameId);
-      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('pointerdown', handlePointerDown);
+      container.removeEventListener('pointermove', handlePointerMove);
+      container.removeEventListener('pointerup', handlePointerUp);
+      container.removeEventListener('pointercancel', handlePointerCancel);
       window.removeEventListener('resize', handleResize);
       renderer.dispose();
     };
@@ -250,6 +279,14 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
 
   // Click Plushie Heart Effect
   const handlePlushieClick = (e: React.MouseEvent) => {
+    if (!pointerStartedOnHeartRef.current) return;
+    pointerStartedOnHeartRef.current = false;
+
+    if (hasDraggedRef.current) {
+      hasDraggedRef.current = false;
+      return;
+    }
+
     setLoveCount((prev) => prev + 1);
 
     // Trigger burst confetti
@@ -295,8 +332,8 @@ export const HeartPlushieCanvas: React.FC<HeartPlushieProps> = ({ partnerName })
       {/* Canvas wrapper */}
       <div
         onClick={handlePlushieClick}
-        className="relative cursor-pointer transition-transform active:scale-95 group rounded-3xl"
-        style={{ width: '380px', height: '380px' }}
+        className="relative cursor-grab active:cursor-grabbing transition-transform active:scale-95 group rounded-3xl"
+        style={{ width: '380px', height: '380px', touchAction: 'pan-y' }}
       >
         <div ref={containerRef} className="w-full h-full" />
 
