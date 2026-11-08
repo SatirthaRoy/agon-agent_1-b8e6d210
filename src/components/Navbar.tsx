@@ -24,13 +24,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdminLogin, isPlayingMusic
     { label: 'Love Jar', href: '#lovejar', enabled: settings.enabled_components.lovejar },
   ].filter((link) => link.enabled);
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
+  const closeMobileMenu = () => {
     setMobileMenuOpen(false);
-    const target = document.querySelector(href);
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
 
   return (
@@ -58,7 +53,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdminLogin, isPlayingMusic
               <a
                 key={link.href}
                 href={link.href}
-                onClick={(e) => scrollToSection(e, link.href)}
                 className="text-sm font-medium text-rose-900/80 dark:text-rose-200 hover:text-pink-600 dark:hover:text-pink-300 transition-colors py-1 px-2 rounded-lg hover:bg-pink-50 dark:hover:bg-rose-900/40"
               >
                 {link.label}
@@ -123,7 +117,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAdminLogin, isPlayingMusic
             <a
               key={link.href}
               href={link.href}
-              onClick={(e) => scrollToSection(e, link.href)}
+              onClick={closeMobileMenu}
               className="block px-3 py-2 rounded-xl text-base font-medium text-rose-900 dark:text-rose-100 hover:bg-pink-100 dark:hover:bg-rose-900/60"
             >
               {link.label}

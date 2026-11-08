@@ -69,7 +69,7 @@ export const ThemeCustomizerTab: React.FC = () => {
   return (
     <form onSubmit={handleSave} className="space-y-8">
       {/* Save Button Header */}
-      <div className="flex items-center justify-between bg-white dark:bg-rose-950 p-4 rounded-2xl border border-pink-200 dark:border-rose-800 shadow-sm sticky top-20 z-30">
+      <div className="admin-tab-heading flex items-center justify-between bg-white dark:bg-rose-950 p-4 rounded-2xl border border-pink-200 dark:border-rose-800 shadow-sm">
         <h3 className="text-lg font-bold text-rose-950 dark:text-rose-100 flex items-center gap-2">
           <Palette className="w-5 h-5 text-pink-500" />
           <span>Site Design & Master Customization</span>

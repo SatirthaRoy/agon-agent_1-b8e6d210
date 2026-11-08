@@ -61,7 +61,7 @@ export const BucketListEditorTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="admin-tab-heading flex items-center justify-between">
         <h3 className="text-xl font-bold text-rose-950 dark:text-rose-100 flex items-center gap-2">
           <Compass className="w-5 h-5 text-pink-500" />
           <span>Manage Couple Bucket List ({items.length})</span>

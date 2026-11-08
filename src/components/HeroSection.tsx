@@ -6,14 +6,6 @@ import { HeartPlushieCanvas } from './3d/HeartPlushieCanvas';
 export const HeroSection: React.FC = () => {
   const { settings, theme } = useTheme();
 
-  const handleScrollToTimeline = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const target = document.querySelector('#timeline');
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
     <header className="relative min-h-[85vh] flex flex-col items-center justify-center pt-8 pb-16 px-4 overflow-hidden text-center">
       {/* Background Floating Hearts Particle Glow */}
@@ -70,7 +62,6 @@ export const HeroSection: React.FC = () => {
         <div className="pt-4 flex flex-col items-center gap-2">
           <a
             href="#timeline"
-            onClick={handleScrollToTimeline}
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 text-white font-bold text-base shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
           >
             <Heart className="w-5 h-5 fill-white" />
@@ -78,7 +69,6 @@ export const HeroSection: React.FC = () => {
           </a>
           <a
             href="#timeline"
-            onClick={handleScrollToTimeline}
             className="text-rose-500 dark:text-rose-400 animate-bounce mt-2 p-1"
           >
             <ArrowDown className="w-5 h-5" />

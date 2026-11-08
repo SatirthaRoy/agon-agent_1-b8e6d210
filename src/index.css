@@ -4,19 +4,21 @@
 
 @layer base {
   html {
-    scroll-behavior: smooth;
     color-scheme: light;
   }
 }
 
-@layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
-html, body {
-  scroll-behavior: smooth !important;
+html.admin-dashboard-open {
+  height: 100%;
+  overflow: hidden !important;
+}
+
+html.admin-dashboard-open body {
+  overflow: hidden !important;
 }
 
 .site-custom-cursor,
@@ -35,6 +37,58 @@ html, body {
 .admin-dashboard :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), textarea, select) {
   color: #881337;
   caret-color: #e11d48;
+}
+
+.admin-dashboard__layout,
+.admin-dashboard__sidebar,
+.admin-dashboard__content {
+  min-width: 0;
+}
+
+.admin-dashboard__scroll-area {
+  scroll-behavior: auto;
+  scrollbar-gutter: stable;
+}
+
+.admin-dashboard__content {
+  overflow-wrap: anywhere;
+}
+
+.admin-dashboard__content :is(input, textarea, select) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .admin-dashboard__topbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .admin-dashboard__topbar > :first-child {
+    min-width: 0;
+  }
+
+  .admin-dashboard__topbar h2 {
+    overflow-wrap: anywhere;
+  }
+
+  .admin-dashboard__topbar-actions {
+    justify-content: flex-end;
+  }
+
+  .admin-tab-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .admin-tab-heading h3 {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
 }
 
 /* Perspective utilities for 3D flip card */
