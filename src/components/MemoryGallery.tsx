@@ -71,11 +71,17 @@ export const MemoryGallery: React.FC = () => {
               onClick={() => setActivePhoto(mem)}
               className={`group relative rounded-3xl overflow-hidden ${theme.cardBg} border cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1`}
             >
-              <div className="aspect-4/3 w-full overflow-hidden relative">
+              <div className="aspect-4/3 w-full overflow-hidden relative bg-rose-100 dark:bg-rose-900">
+                <img
+                  src={mem.image_url}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60"
+                />
                 <img
                   src={mem.image_url}
                   alt={mem.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="relative w-full h-full object-contain"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                   <div className="text-white flex items-center justify-between w-full">
@@ -120,11 +126,19 @@ export const MemoryGallery: React.FC = () => {
               <X className="w-5 h-5" />
             </button>
 
-            <img
-              src={activePhoto.image_url}
-              alt={activePhoto.title}
-              className="w-full max-h-[60vh] object-contain rounded-2xl"
-            />
+            <div className="relative h-[60vh] max-h-[600px] overflow-hidden rounded-2xl bg-rose-100 dark:bg-rose-900">
+              <img
+                src={activePhoto.image_url}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-60"
+              />
+              <img
+                src={activePhoto.image_url}
+                alt={activePhoto.title}
+                className="relative w-full h-full object-contain"
+              />
+            </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-rose-500">

@@ -1,7 +1,7 @@
 import { jsonResponse, readJson, requireAdmin } from './auth.js';
 
 const BOOLEAN_FIELDS = new Set(['completed', 'is_favorite', 'is_secret', 'read_by_gf']);
-const JSON_FIELDS = new Set(['options']);
+const JSON_FIELDS = new Set(['options', 'image_urls']);
 
 function serializeRow(row, table) {
   if (!row) return row;
@@ -10,7 +10,7 @@ function serializeRow(row, table) {
     if (field in result) result[field] = Boolean(result[field]);
   }
   for (const field of JSON_FIELDS) {
-    if (table === 'quiz_questions' && typeof result[field] === 'string') {
+    if ((field === 'image_urls' || (field === 'options' && table === 'quiz_questions')) && typeof result[field] === 'string') {
       try {
         result[field] = JSON.parse(result[field]);
       } catch {

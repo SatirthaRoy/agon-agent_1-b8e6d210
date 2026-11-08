@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TimelineEvent } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
-import { Calendar, MapPin, Heart, Sparkles, ChevronRight, X } from 'lucide-react';
+import { Calendar, MapPin, Heart, Sparkles, ChevronRight, ChevronLeft, X } from 'lucide-react';
 import { subscribeToContentUpdates } from '../lib/contentEvents';
 import { STORAGE_KEYS, readAdminCollection } from '../lib/adminDataStorage';
 
@@ -11,6 +11,7 @@ export const LoveStoryTimeline: React.FC = () => {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const fetchTimeline = async () => {
     try {
@@ -27,6 +28,18 @@ export const LoveStoryTimeline: React.FC = () => {
     fetchTimeline();
     return subscribeToContentUpdates('timeline', fetchTimeline);
   }, []);
+
+  const eventImages = selectedEvent?.image_urls?.filter(Boolean) ?? [];
+  const selectedImages = eventImages.length
+    ? eventImages
+    : selectedEvent?.image_url
+      ? [selectedEvent.image_url]
+      : [];
+
+  const openEvent = (event: TimelineEvent) => {
+    setActiveImageIndex(0);
+    setSelectedEvent(event);
+  };
 
   return (
     <section id="timeline" className="py-16 px-4 max-w-6xl mx-auto">
@@ -68,17 +81,22 @@ export const LoveStoryTimeline: React.FC = () => {
                   {/* Content card */}
                   <div className="w-full md:w-1/2 px-0 md:px-6">
                     <div
-                      onClick={() => setSelectedEvent(event)}
+                      onClick={() => openEvent(event)}
                       className={`p-6 rounded-3xl ${theme.cardBg} border cursor-pointer hover:scale-[1.02] transition-all duration-300 space-y-3 group`}
                     >
-                      {event.image_url && (
-                        <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-3">
+                      {(event.image_urls?.[0] || event.image_url) && (
+                        <div className="relative h-48 w-full rounded-2xl overflow-hidden mb-3 bg-rose-100 dark:bg-rose-900">
                           <img
-                            src={event.image_url}
-                            alt={event.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            src={event.image_urls?.[0] || event.image_url}
+                            alt=""
+                            aria-hidden="true"
+                            className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-60"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                          <img
+                            src={event.image_urls?.[0] || event.image_url}
+                            alt={event.title}
+                            className="relative w-full h-full object-contain"
+                          />
                         </div>
                       )}
 
@@ -124,20 +142,73 @@ export const LoveStoryTimeline: React.FC = () => {
       {/* Expanded Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-rose-950 p-6 sm:p-8 rounded-3xl max-w-lg w-full border border-pink-200 dark:border-rose-800 shadow-2xl space-y-4 relative">
-            <button
-              onClick={() => setSelectedEvent(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-pink-100 dark:bg-rose-900 text-rose-700 dark:text-rose-200 hover:scale-110 transition-transform"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          <div className="bg-white dark:bg-rose-950 p-6 sm:p-8 rounded-3xl max-w-lg w-full border border-pink-200 dark:border-rose-800 shadow-2xl space-y-4">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                aria-label="Close milestone"
+                onClick={() => setSelectedEvent(null)}
+                className="p-2 rounded-full bg-pink-100 dark:bg-rose-900 text-rose-700 dark:text-rose-200 hover:scale-110 transition-transform"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-            {selectedEvent.image_url && (
-              <img
-                src={selectedEvent.image_url}
-                alt={selectedEvent.title}
-                className="w-full h-60 object-cover rounded-2xl"
-              />
+            {selectedImages.length > 0 && (
+              <div className="relative overflow-hidden rounded-2xl bg-rose-100 dark:bg-rose-900">
+                <div
+                  className="flex w-full transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${activeImageIndex * 100}%)` }}
+                >
+                  {selectedImages.map((imageUrl, index) => (
+                    <div key={`${imageUrl}-${index}`} className="relative h-60 w-full min-w-full shrink-0 overflow-hidden">
+                      <img
+                        src={imageUrl}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover blur-xl scale-110 opacity-60"
+                      />
+                      <img
+                        src={imageUrl}
+                        alt={`${selectedEvent.title} photo ${index + 1}`}
+                        className="relative h-full w-full object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+                {selectedImages.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      aria-label="Previous photo"
+                      onClick={() => setActiveImageIndex((activeImageIndex - 1 + selectedImages.length) % selectedImages.length)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Next photo"
+                      onClick={() => setActiveImageIndex((activeImageIndex + 1) % selectedImages.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                    <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+                      {selectedImages.map((imageUrl, index) => (
+                        <button
+                          key={`${imageUrl}-dot-${index}`}
+                          type="button"
+                          aria-label={`Show photo ${index + 1}`}
+                          aria-current={index === activeImageIndex}
+                          onClick={() => setActiveImageIndex(index)}
+                          className={`h-2 w-2 rounded-full ${index === activeImageIndex ? 'bg-white' : 'bg-white/50'}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             )}
 
             <div className="flex items-center gap-3 text-xs font-bold text-rose-500">

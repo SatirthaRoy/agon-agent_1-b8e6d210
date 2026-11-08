@@ -32,7 +32,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xl flex flex-col">
+    <div className="admin-dashboard fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-xl flex flex-col">
       {/* Top Admin Navigation Header */}
       <header className="bg-white/90 dark:bg-rose-950/90 border-b border-pink-200 dark:border-rose-800 px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-md">
         <div className="flex items-center gap-3">

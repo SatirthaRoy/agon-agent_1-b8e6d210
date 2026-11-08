@@ -58,7 +58,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${theme.bgGradient} ${theme.textPrimary} transition-colors duration-500 selection:bg-pink-400 selection:text-white`}>
+    <div className={`site-custom-cursor min-h-screen ${theme.bgGradient} ${theme.textPrimary} transition-colors duration-500 selection:bg-pink-400 selection:text-white`}>
       {/* Navigation */}
       <Navbar
         onOpenAdminLogin={handleOpenAdmin}

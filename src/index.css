@@ -16,6 +16,31 @@ html, body {
   scroll-behavior: smooth !important;
 }
 
+.site-custom-cursor,
+.site-custom-cursor * {
+  cursor: url("/pointer-cursor.svg") 5 3, auto !important;
+}
+
+.site-custom-cursor :is(a, button, [role="button"], [class~="cursor-pointer"], input[type="checkbox"], input[type="radio"], input[type="submit"], input[type="reset"], input[type="button"], summary, label[for]) {
+  cursor: url("/pointer-cursor.svg") 5 3, pointer !important;
+}
+
+.site-custom-cursor :is(input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="color"]):not([type="range"]):not([type="file"]), textarea, [contenteditable="true"]) {
+  cursor: url("/text-cursor.svg") 12 12, text !important;
+}
+
+.admin-dashboard :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), textarea, select) {
+  color: #881337;
+  caret-color: #e11d48;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-dashboard :is(input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), textarea, select) {
+    color: #ffe4e6;
+    caret-color: #fb7185;
+  }
+}
+
 /* Perspective utilities for 3D flip card */
 .perspective-1000 {
   perspective: 1000px;

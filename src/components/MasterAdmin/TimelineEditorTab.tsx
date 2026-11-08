@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TimelineEvent } from '../../types';
-import { Calendar, Plus, Trash2, Edit2, Save, X, Image, MapPin } from 'lucide-react';
+import { Calendar, Plus, Trash2, Edit2, X } from 'lucide-react';
 import { notifyContentUpdated } from '../../lib/contentEvents';
 import { STORAGE_KEYS, readAdminCollection, writeAdminCollection, deleteAdminCollection } from '../../lib/adminDataStorage';
 
@@ -32,11 +32,16 @@ export const TimelineEditorTab: React.FC = () => {
 
     try {
       const isNew = !editingEvent.id;
+      const imageUrls = (editingEvent.image_urls || [])
+        .map((url) => url.trim())
+        .filter(Boolean);
       const saved = await writeAdminCollection<TimelineEvent>(
         STORAGE_KEYS.timeline,
         '/api/timeline',
         {
           ...editingEvent,
+          image_url: imageUrls[0] || '',
+          image_urls: imageUrls,
           id: editingEvent.id ?? 0,
         } as TimelineEvent,
         isNew ? 'POST' : 'PUT',
@@ -83,6 +88,7 @@ export const TimelineEditorTab: React.FC = () => {
               description: '',
               location: '',
               image_url: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80',
+              image_urls: ['https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80'],
               order_index: events.length + 1,
             })
           }
@@ -144,12 +150,20 @@ export const TimelineEditorTab: React.FC = () => {
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-semibold">Photo Image URL</label>
-              <input
-                type="text"
-                value={editingEvent.image_url || ''}
-                onChange={(e) => setEditingEvent({ ...editingEvent, image_url: e.target.value })}
+            <div className="space-y-1 sm:col-span-2">
+              <label className="text-xs font-semibold">Photo Image URLs (one per line)</label>
+              <textarea
+                rows={3}
+                placeholder="Paste one image URL per line"
+                value={(editingEvent.image_urls?.length
+                  ? editingEvent.image_urls
+                  : editingEvent.image_url
+                    ? [editingEvent.image_url]
+                    : []).join('\n')}
+                onChange={(e) => {
+                  const imageUrls = e.target.value.split('\n');
+                  setEditingEvent({ ...editingEvent, image_urls: imageUrls, image_url: imageUrls[0] || '' });
+                }}
                 className="w-full px-3 py-2 rounded-xl bg-white dark:bg-rose-950 border text-sm"
               />
             </div>
@@ -182,8 +196,8 @@ export const TimelineEditorTab: React.FC = () => {
               className="p-4 rounded-2xl bg-white dark:bg-rose-900/40 border border-pink-200 dark:border-rose-800 flex items-center justify-between gap-4"
             >
               <div className="flex items-center gap-4">
-                {ev.image_url && (
-                  <img src={ev.image_url} alt={ev.title} className="w-14 h-14 rounded-xl object-cover" />
+                {(ev.image_urls?.[0] || ev.image_url) && (
+                  <img src={ev.image_urls?.[0] || ev.image_url} alt={ev.title} className="w-14 h-14 rounded-xl object-contain bg-black/5" />
                 )}
                 <div>
                   <h4 className="font-bold text-base text-rose-950 dark:text-rose-100">{ev.title}</h4>

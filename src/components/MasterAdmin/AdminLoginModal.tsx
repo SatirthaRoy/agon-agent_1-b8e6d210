@@ -42,7 +42,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
+    <div className="admin-dashboard fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
       <div className="bg-white dark:bg-rose-950 p-6 sm:p-8 rounded-3xl max-w-md w-full border border-pink-200 dark:border-rose-800 shadow-2xl space-y-6 relative text-center">
         <button
           onClick={onClose}

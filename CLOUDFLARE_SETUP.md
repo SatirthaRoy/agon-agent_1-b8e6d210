@@ -30,7 +30,7 @@ npx wrangler login
 npm run db:migrate:remote
 ```
 
-Review Wrangler's confirmation carefully. The migration creates the application tables and initial settings row. It does not import content from Supabase or browser storage.
+Review Wrangler's confirmation carefully. This applies all pending migrations, including application tables, schema updates, and the initial settings row. It does not import content from Supabase or browser storage.
 
 ## Local development
 

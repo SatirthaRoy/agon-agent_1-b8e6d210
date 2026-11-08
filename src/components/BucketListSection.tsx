@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BucketItem } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { CheckCircle2, Circle, Sparkles, Compass, Plus, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { subscribeToContentUpdates } from '../lib/contentEvents';
@@ -8,6 +9,7 @@ import { STORAGE_KEYS, readAdminCollection, writeAdminCollection } from '../lib/
 
 export const BucketListSection: React.FC = () => {
   const { theme } = useTheme();
+  const { isAdmin } = useAuth();
   const [items, setItems] = useState<BucketItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCat, setSelectedCat] = useState('All');
@@ -29,20 +31,20 @@ export const BucketListSection: React.FC = () => {
   }, []);
 
   const toggleComplete = async (item: BucketItem) => {
+    if (!isAdmin) return;
+
     const updated = {
       ...item,
       completed: !item.completed,
       completed_date: !item.completed ? new Date().toISOString().split('T')[0] : undefined,
     };
 
-    setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
-
-    if (!item.completed) {
-      confetti({ particleCount: 35, spread: 60, origin: { y: 0.6 } });
-    }
-
     try {
       await writeAdminCollection<BucketItem>(STORAGE_KEYS.bucketlist, '/api/bucketlist', updated, 'PUT');
+      setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
+      if (!item.completed) {
+        confetti({ particleCount: 35, spread: 60, origin: { y: 0.6 } });
+      }
     } catch (err) {
       console.error('Failed to update bucket item:', err);
     }
@@ -67,6 +69,11 @@ export const BucketListSection: React.FC = () => {
         <p className="text-base text-rose-700/80 dark:text-rose-300/80 max-w-xl mx-auto">
           Adventures, trips, and memories we plan to create together forever!
         </p>
+        {!isAdmin && (
+          <p className="text-xs font-semibold text-rose-500/80">
+            Only the site admin can mark dreams as completed.
+          </p>
+        )}
 
         {/* Progress Bar */}
         <div className="max-w-md mx-auto pt-4">
@@ -111,19 +118,27 @@ export const BucketListSection: React.FC = () => {
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              onClick={() => toggleComplete(item)}
-              className={`p-4 rounded-2xl ${theme.cardBg} border cursor-pointer flex items-center justify-between gap-4 transition-all duration-300 hover:scale-[1.02] ${
+              onClick={isAdmin ? () => toggleComplete(item) : undefined}
+              onKeyDown={isAdmin ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  void toggleComplete(item);
+                }
+              } : undefined}
+              role={isAdmin ? 'button' : undefined}
+              tabIndex={isAdmin ? 0 : undefined}
+              className={`p-4 rounded-2xl ${theme.cardBg} border ${isAdmin ? 'cursor-pointer hover:scale-[1.02]' : ''} flex items-center justify-between gap-4 transition-all duration-300 ${
                 item.completed ? 'opacity-80' : ''
               }`}
             >
               <div className="flex items-center gap-3">
-                <button className="text-rose-500 transition-transform active:scale-125">
+                <span className="text-rose-500">
                   {item.completed ? (
                     <CheckCircle2 className="w-6 h-6 text-pink-500 fill-pink-100 dark:fill-pink-900" />
                   ) : (
                     <Circle className="w-6 h-6 text-rose-300 dark:text-rose-700" />
                   )}
-                </button>
+                </span>
 
                 <div>
                   <h4

@@ -34,6 +34,7 @@ export interface TimelineEvent {
   description: string;
   location?: string;
   image_url?: string;
+  image_urls?: string[];
   order_index: number;
 }
 

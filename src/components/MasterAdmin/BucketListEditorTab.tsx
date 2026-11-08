@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BucketItem } from '../../types';
-import { Compass, Plus, Trash2, Edit2, Save, X, CheckCircle2 } from 'lucide-react';
+import { Compass, Plus, Trash2, Edit2, X } from 'lucide-react';
 import { notifyContentUpdated } from '../../lib/contentEvents';
 import { STORAGE_KEYS, readAdminCollection, writeAdminCollection, deleteAdminCollection } from '../../lib/adminDataStorage';
 
@@ -73,6 +73,7 @@ export const BucketListEditorTab: React.FC = () => {
               title: '',
               category: 'Travel & Trips',
               completed: false,
+              completed_date: '',
             })
           }
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-500 text-white font-bold text-xs shadow-md"
@@ -114,6 +115,39 @@ export const BucketListEditorTab: React.FC = () => {
                 className="w-full px-3 py-2 rounded-xl bg-white dark:bg-rose-950 border text-sm"
               />
             </div>
+
+            <label className="flex items-center gap-2 text-sm font-semibold text-rose-800 dark:text-rose-200">
+              <input
+                type="checkbox"
+                checked={editingItem.completed || false}
+                onChange={(e) => {
+                  const completed = e.target.checked;
+                  setEditingItem({
+                    ...editingItem,
+                    completed,
+                    completed_date: completed
+                      ? editingItem.completed_date || new Date().toISOString().split('T')[0]
+                      : '',
+                  });
+                }}
+                className="w-4 h-4 rounded text-pink-500"
+              />
+              Mark as completed
+            </label>
+
+            {editingItem.completed && (
+              <div className="space-y-1">
+                <label htmlFor="bucket-completed-date" className="text-xs font-semibold">Completed date</label>
+                <input
+                  id="bucket-completed-date"
+                  type="date"
+                  required
+                  value={editingItem.completed_date || ''}
+                  onChange={(e) => setEditingItem({ ...editingItem, completed_date: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-white dark:bg-rose-950 border text-sm"
+                />
+              </div>
+            )}
           </div>
 
           <button type="submit" className="px-6 py-2.5 rounded-xl bg-rose-500 text-white font-bold text-xs shadow-md">
@@ -134,6 +168,11 @@ export const BucketListEditorTab: React.FC = () => {
               <div>
                 <h4 className="font-bold text-sm text-rose-950 dark:text-rose-100">{i.title}</h4>
                 <span className="text-[11px] text-pink-600 font-semibold">{i.category}</span>
+                {i.completed && (
+                  <span className="block text-[11px] text-emerald-600 font-semibold">
+                    Completed {i.completed_date || '(date not set)'}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-1">

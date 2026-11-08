@@ -168,7 +168,7 @@ export const GalleryEditorTab: React.FC = () => {
               key={m.id}
               className="p-3 rounded-2xl bg-white dark:bg-rose-900/40 border border-pink-200 dark:border-rose-800 space-y-2"
             >
-              <img src={m.image_url} alt={m.title} className="w-full h-36 object-cover rounded-xl" />
+              <img src={m.image_url} alt={m.title} className="w-full h-36 object-contain rounded-xl bg-black/5" />
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-sm text-rose-950 dark:text-rose-100 truncate">{m.title}</h4>
                 <div className="flex items-center gap-1">
