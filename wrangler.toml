@@ -1,0 +1,9 @@
+name = "love-site"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-11-08"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "love-site-db"
+database_id = "bb96f742-6687-44f2-b10b-e2f92d55d987"
+migrations_dir = "migrations"

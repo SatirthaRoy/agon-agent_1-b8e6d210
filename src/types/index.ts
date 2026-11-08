@@ -10,7 +10,6 @@ export interface SiteSettings {
   primary_color?: string;
   font_style?: string;
   secret_code: string;
-  master_pin: string;
   bg_music_url?: string;
   enabled_components: {
     hero: boolean;

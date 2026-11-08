@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { Navbar } from './components/Navbar';
@@ -15,19 +15,15 @@ import { AudioPlayer } from './components/AudioPlayer';
 import { Footer } from './components/Footer';
 import { AdminLoginModal } from './components/MasterAdmin/AdminLoginModal';
 import { AdminDashboard } from './components/MasterAdmin/AdminDashboard';
-import { handleGoogleRedirect } from './lib/googleAuth';
-
-// Trigger google redirect handler
-handleGoogleRedirect();
 
 const AppContent: React.FC = () => {
   const { theme, settings, loading } = useTheme();
-  const { isAdmin } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-rose-50 dark:bg-rose-950 text-pink-600 font-bold">
         <div className="flex flex-col items-center gap-3 animate-pulse">

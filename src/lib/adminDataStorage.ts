@@ -71,7 +71,10 @@ export async function readAdminCollection<T extends PersistedItem>(storageKey: s
     if (response.ok) {
       const data = await response.json();
       if (Array.isArray(data)) {
-        createLocalStorageAdapter<T>(storageKey).set(data);
+        const storage = createLocalStorageAdapter<T>(storageKey);
+        const localItems = storage.get();
+        if (data.length || !localItems.length) storage.set(data);
+        else return localItems;
         return data;
       }
     }
@@ -83,38 +86,41 @@ export async function readAdminCollection<T extends PersistedItem>(storageKey: s
 }
 
 export async function writeAdminCollection<T extends PersistedItem>(storageKey: string, endpoint: string, item: T, method: 'POST' | 'PUT'): Promise<T> {
+  let response: Response;
   try {
-    const response = await fetch(endpoint, {
+    response = await fetch(endpoint, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item),
     });
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data && typeof data === 'object') {
-        createLocalStorageAdapter<T>(storageKey).upsert(data);
-        return data;
-      }
-    }
   } catch {
-    // Fall back to local persistence when the database is unavailable.
+    const saved = createLocalStorageAdapter<T>(storageKey).upsert(item);
+    return saved[saved.length - 1];
   }
 
-  const saved = createLocalStorageAdapter<T>(storageKey).upsert(item);
-  return saved[saved.length - 1];
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.error || `Save failed (${response.status}).`);
+  }
+
+  const data = await response.json();
+  if (!data || typeof data !== 'object') throw new Error('The server returned an invalid save response.');
+  createLocalStorageAdapter<T>(storageKey).upsert(data);
+  return data;
 }
 
 export async function deleteAdminCollection<T extends PersistedItem>(storageKey: string, endpoint: string, id: number): Promise<void> {
+  let response: Response;
   try {
-    const response = await fetch(`${endpoint}?id=${id}`, { method: 'DELETE' });
-    if (response.ok) {
-      createLocalStorageAdapter<T>(storageKey).remove(id);
-      return;
-    }
+    response = await fetch(`${endpoint}?id=${id}`, { method: 'DELETE' });
   } catch {
-    // Fall back to local persistence when the database is unavailable.
+    createLocalStorageAdapter<T>(storageKey).remove(id);
+    return;
   }
 
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(data?.error || `Delete failed (${response.status}).`);
+  }
   createLocalStorageAdapter<T>(storageKey).remove(id);
 }

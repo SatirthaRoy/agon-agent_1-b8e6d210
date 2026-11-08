@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import { Lock, Key, X, Sparkles, Heart } from 'lucide-react';
-import { signInWithGoogle } from '../../lib/googleAuth';
+import { Lock, X } from 'lucide-react';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -10,8 +8,7 @@ interface AdminLoginModalProps {
 }
 
 export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose }) => {
-  const { setIsAdmin, setAdminPin } = useAuth();
-  const { settings } = useTheme();
+  const { setIsAdmin } = useAuth();
   const [pinInput, setPinInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,20 +30,12 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClos
       const data = await res.json();
       if (res.ok && data.authenticated) {
         setIsAdmin(true);
-        setAdminPin(pinInput);
         onClose();
       } else {
         setErrorMsg(data.error || 'Incorrect Master PIN');
       }
     } catch (err) {
-      // Local fallback check
-      if (pinInput === settings.master_pin || pinInput === 'ilovesuvra') {
-        setIsAdmin(true);
-        setAdminPin(pinInput);
-        onClose();
-      } else {
-        setErrorMsg('Invalid Master PIN');
-      }
+      setErrorMsg(err instanceof Error ? err.message : 'Unable to reach the admin login service.');
     } finally {
       setLoading(false);
     }

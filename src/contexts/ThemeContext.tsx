@@ -94,7 +94,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   theme_id: 'lovely_pink',
   primary_color: '#ec4899',
   secret_code: 'LOVE',
-  master_pin: 'ilovesuvra',
   bg_music_url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
   enabled_components: {
     hero: true,
