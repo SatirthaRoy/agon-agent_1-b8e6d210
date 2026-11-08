@@ -118,13 +118,17 @@ export const MemoryGallery: React.FC = () => {
       {/* Photo Lightbox */}
       {activePhoto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-white dark:bg-rose-950 p-6 rounded-3xl max-w-2xl w-full border border-pink-200 dark:border-rose-800 shadow-2xl relative space-y-4">
-            <button
-              onClick={() => setActivePhoto(null)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-pink-100 dark:bg-rose-900 text-rose-700 dark:text-rose-200 hover:scale-110 transition-transform"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          <div className="bg-white dark:bg-rose-950 p-6 rounded-3xl max-w-2xl w-full border border-pink-200 dark:border-rose-800 shadow-2xl space-y-4">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                aria-label="Close photo"
+                onClick={() => setActivePhoto(null)}
+                className="p-2 rounded-full bg-pink-100 dark:bg-rose-900 text-rose-700 dark:text-rose-200 hover:scale-110 transition-transform"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
             <div className="relative h-[60vh] max-h-[600px] overflow-hidden rounded-2xl bg-rose-100 dark:bg-rose-900">
               <img
